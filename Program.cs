@@ -14,6 +14,8 @@ builder.Services.AddOptions<DiscordOptions>()
     .Validate(options => options.ApplicationId != 0, "Discord ApplicationId must be configured.")
     .ValidateOnStart();
 builder.Services.AddSingleton<DiscordClient>();
+builder.Services.AddSingleton<AuthorizationCoordinator>();
+builder.Services.AddSingleton<IAuthorizationTokenStore, FileAuthorizationTokenStore>();
 builder.Services.AddSingleton<IOpenCampfireService, OpenCampfireService>();
 
 using IHost host = builder.Build();

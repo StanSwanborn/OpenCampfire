@@ -4,22 +4,30 @@ using Discord.Social.CSharp.Sdk;
 public sealed class OpenCampfireService : IOpenCampfireService
 {
     private readonly DiscordClient _discordClient;
-    private readonly DiscordOptions _discordOptions;
+    private readonly AuthorizeProcess _authorizeProcess;
     private bool _disposed;
-    
-    public OpenCampfireService(IOptions<DiscordOptions> discordOptions)
-    {
-        _discordClient = new DiscordClient();
-        _discordOptions = discordOptions.Value;
 
-        // Initialize the Discord client with the application ID from the configuration
-        _discordClient.SetApplicationId(_discordOptions.ApplicationId);
+    public OpenCampfireService(
+        IOptions<DiscordOptions> discordOptions,
+        DiscordClient discordClient,
+        IAuthorizationTokenStore tokenStore,
+        AuthorizationCoordinator authorizationCoordinator)
+    {
+        _discordClient = discordClient;
+        var options = discordOptions.Value;
+        _authorizeProcess = new AuthorizeProcess(
+            discordClient,
+            options,
+            tokenStore,
+            authorizationCoordinator);
+
+        _discordClient.SetApplicationId(options.ApplicationId);
     }
 
-    public async Task AuthorizeAsync()
+    public Task AuthorizeAsync()
     {
-        var authorizeProcess = new AuthorizeProcess(_discordClient, _discordOptions);
-        await authorizeProcess.Execute().ConfigureAwait(false);
+        _authorizeProcess.Execute();
+        return Task.CompletedTask;
     }
 
     public async Task ConnectToDiscordAsync()
