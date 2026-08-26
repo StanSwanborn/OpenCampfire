@@ -1,58 +1,28 @@
-using Discord.Social.CSharp.Sdk.Authorization;
-using Discord.Social.CSharp.Sdk.Extensions;
-using Discord.Social.CSharp.Sdk.Logging;
 using Discord.Social.CSharp.Sdk;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-ulong ApplicationId = 1541884081984241784;
-using var client = new DiscordClient();
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+builder.Configuration.AddJsonFile(
+    "Configuration/discord-configuration.json",
+    optional: false,
+    reloadOnChange: false);
 
-client.SetApplicationId(ApplicationId);
+builder.Services.AddOptions<DiscordOptions>()
+    .Bind(builder.Configuration)
+    .Validate(options => options.ApplicationId != 0, "Discord ApplicationId must be configured.")
+    .ValidateOnStart();
+builder.Services.AddSingleton<DiscordClient>();
+builder.Services.AddSingleton<IOpenCampfireService, OpenCampfireService>();
 
-client.AddLogCallback((message, severity) =>
+using IHost host = builder.Build();
+IOpenCampfireService openCampfireService = host.Services.GetRequiredService<IOpenCampfireService>();
+
+await openCampfireService.AuthorizeAsync();
+
+while (true)
 {
-    Console.WriteLine($"[{severity}] {message}");
-}, LoggingSeverity.Info);
-
-client.SetStatusChangedCallback((status, error, errorDetail) =>
-{
-    Console.WriteLine($"Status changed: {status}, Error: {error}, Detail: {errorDetail}");
-});
-
-var codeVerifier = client.CreateAuthorizationCodeVerifier();
-
-var authArgs = new AuthorizationArgs();
-authArgs.SetClientId(ApplicationId); 
-authArgs.SetScopes(DiscordClientExtensions.GetDefaultPresenceScopes());
-authArgs.SetCodeChallenge(codeVerifier.Challenge());
-
-// Begin authorization process
-client.Authorize(authArgs, (result, code, redirectUri) =>
-{
-    if (result.Successful)
-    {
-        Console.WriteLine($"Authorization successful! Code: {code}, Redirect URI: {redirectUri}");
-    }
-    else
-    {
-        Console.WriteLine($"Authorization failed: {result.Error}");
-    }
-
-    client.GetToken(ApplicationId, code, codeVerifier.Verifier, redirectUri, 
-        (result, accessToken, refreshToken, tokenType, expiresIn, scope) => {
-            if (result.Successful)
-            {
-                Console.WriteLine($"Token exchange successful! Access Token: {accessToken}, Refresh Token: {refreshToken}, Token Type: {tokenType}, Expires In: {expiresIn}, Scope: {scope}");
-            }
-            else
-            {
-                Console.WriteLine($"Token exchange failed: {result.Error}");
-            }
-        }
-    );
-});
-
-while(true)
-{
-    client.RunCallBacks();
-    Thread.Sleep(10); // Adjust the sleep duration as needed
+    await openCampfireService.RunCallbacksAsync().ConfigureAwait(false);
+    await Task.Delay(10);
 }
