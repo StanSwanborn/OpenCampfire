@@ -1,7 +1,8 @@
-using Discord.Social.CSharp.Sdk;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using OpenCampfire.Authorization;
+using Discord.Social.CSharp.Sdk;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.AddJsonFile(
@@ -13,8 +14,8 @@ builder.Services.AddOptions<DiscordOptions>()
     .Bind(builder.Configuration)
     .Validate(options => options.ApplicationId != 0, "Discord ApplicationId must be configured.")
     .ValidateOnStart();
+
 builder.Services.AddSingleton<DiscordClient>();
-builder.Services.AddSingleton<AuthorizationCoordinator>();
 builder.Services.AddSingleton<IAuthorizationTokenStore, FileAuthorizationTokenStore>();
 builder.Services.AddSingleton<IOpenCampfireService, OpenCampfireService>();
 

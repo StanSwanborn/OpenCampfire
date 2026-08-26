@@ -1,3 +1,5 @@
+namespace OpenCampfire.Authorization;
+
 public interface IAuthorizationTokenStore
 {
     AuthorizationToken? Load();

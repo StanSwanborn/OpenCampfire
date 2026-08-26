@@ -1,15 +1,19 @@
-using System.Text.Json;
 using Microsoft.Extensions.Options;
+using OpenCampfire.Authorization;
+using System.Text.Json;
 
 public sealed class FileAuthorizationTokenStore : IAuthorizationTokenStore
 {
     private readonly string _filePath;
+    private AuthorizationToken? deserializedToken;
 
     public FileAuthorizationTokenStore(IOptions<DiscordOptions> options)
     {
         var directory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "OpenCampfire");
+            "OpenCampfire"
+        );
+
         _filePath = Path.Combine(directory, $"discord-{options.Value.ApplicationId}.json");
     }
 
@@ -20,15 +24,18 @@ public sealed class FileAuthorizationTokenStore : IAuthorizationTokenStore
             if (!File.Exists(_filePath))
                 return null;
 
-            return JsonSerializer.Deserialize<AuthorizationToken>(File.ReadAllText(_filePath));
+            if(deserializedToken == null)
+                deserializedToken = JsonSerializer.Deserialize<AuthorizationToken>(File.ReadAllText(_filePath));
+
+            return deserializedToken;
         }
         catch (IOException)
         {
-            return null;
+            throw;
         }
         catch (JsonException)
         {
-            return null;
+            throw; // TODO: Evaluate necessity, or maybe we should just throw a custom exception.
         }
     }
 
@@ -50,7 +57,7 @@ public sealed class FileAuthorizationTokenStore : IAuthorizationTokenStore
         {
             File.Delete(_filePath);
         }
-        catch (FileNotFoundException)
+        catch (FileNotFoundException) // If the file doesn't exist, we can consider it already cleared.
         {
         }
     }

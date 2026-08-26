@@ -1,5 +1,7 @@
 using Discord.Social.CSharp.Sdk.Authorization;
 
+namespace OpenCampfire.Authorization;
+
 public sealed record AuthorizationToken(
     string AccessToken,
     string RefreshToken,
