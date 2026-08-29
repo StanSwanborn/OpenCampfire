@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Discord.Social.CSharp", "Discord.Social.CSharp\Discord.Social.CSharp.csproj", "{33C444CC-8D3F-45D6-95C5-91BE6124BA49}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCampfire.Core", "OpenCampfire.Core\OpenCampfire.Core.csproj", "{510809F4-65DA-4828-952C-ACCE32A0EE54}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCampfire.Localhost", "OpenCampfire.Localhost\OpenCampfire.Localhost.csproj", "{4DDCEBFE-FD41-4CFA-BDB1-0A72C9352024}"
