@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>OpenCampfire</title>
+
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #111;
+            color: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .stream-info {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #222;
+            border-radius: 12px;
+        }
+
+        .value {
+            font-family: monospace;
+            font-size: 1.5rem;
+        }
+
+        .error {
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>OpenCampfire</h1>
+
+        <div id="content">
+            Loading stream...
+        </div>
+    </div>
+
+    <script>
+        async function loadStream() {
+            const params = new URLSearchParams(window.location.search);
+            const ticket = params.get("ticket");
+
+            if (!ticket) {
+                document.getElementById("content").innerHTML =
+                    '<p class="error">No stream ticket provided.</p>';
+
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `/api/stream/resolve?ticket=${encodeURIComponent(ticket)}`
+                );
+
+                if (!response.ok) {
+                    throw new Error("Invalid stream ticket.");
+                }
+
+                const stream = await response.json();
+
+                document.getElementById("content").innerHTML = `
+                    <div class="stream-info">
+                        <p>Endpoint</p>
+                        <div class="value">${stream.endpoint}</div>
+
+                        <p>Port</p>
+                        <div class="value">${stream.port}</div>
+                    </div>
+                `;
+            }
+            catch (error) {
+                document.getElementById("content").innerHTML = `
+                    <p class="error">${error.message}</p>
+                `;
+            }
+        }
+
+        loadStream();
+    </script>
+</body>
+</html>
