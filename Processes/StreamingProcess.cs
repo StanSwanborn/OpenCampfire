@@ -24,7 +24,7 @@ public sealed class StreamingProcess(DiscordClient discordClient, NATOptions nat
 
         var button = new ActivityButton();
         button.SetLabel("Start Watching");
-        button.SetURL($"http://opencampfire.localhost:6000/stream/watch?ticket={ticket}");
+        button.SetURL($"http://opencampfire.localhost/stream/watch?ticket={ticket}");
 
         activity.AddButton(button);
 

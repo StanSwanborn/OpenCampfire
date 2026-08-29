@@ -1,4 +1,4 @@
-using OpenCampfire.Authorization;
+using OpenCampfire.Abstractions.Models;
 
 namespace OpenCampfire.Abstractions.Interfaces;
 

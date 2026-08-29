@@ -1,7 +1,7 @@
 using Discord.Social.CSharp.Sdk.Authorization;
 using Discord.Social.CSharp.Sdk.Extensions;
 using OpenCampfire.Abstractions.Interfaces;
-using OpenCampfire.Authorization;
+using OpenCampfire.Abstractions.Models;
 using Discord.Social.CSharp.Sdk;
 using OpenCampfire.Exceptions;
 using OpenCampfire.Options;
@@ -10,7 +10,7 @@ namespace OpenCampfire.Processes;
 
 public sealed class AuthorizeProcess(DiscordClient discordClient, DiscordOptions discordOptions, IAuthorizationTokenStore tokenStore)
 {
-    public void Execute()
+    public async Task Execute()
     {
         Console.WriteLine("Authorization process started...");
 

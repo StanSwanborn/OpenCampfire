@@ -2,7 +2,7 @@ namespace OpenCampfire.Helpers;
 
 public static class AssemblyVersionHelper
 {
-    public static Version Current => typeof(Program).Assembly.GetName().Version!;
+    private static Version Current => typeof(AssemblyVersionHelper).Assembly.GetName().Version ?? new Version(0, 0);
 
     public static int Major => Current.Major;
 }

@@ -32,13 +32,13 @@ public sealed class OpenCampfireDiscordService : IOpenCampfireDiscordService
         );
     }
 
-    public async Task AuthorizeAsync() => _authorizeProcess.Execute();
+    public async Task AuthorizeAsync() => await _authorizeProcess.Execute().ConfigureAwait(false);
 
     public async Task ConnectToDiscordAsync() => _discordClient.Connect();
 
     public async Task RunCallbacksAsync() => _discordClient.RunCallBacks();
 
-    public async Task StartStreamingAsync() => _streamingProcess.Execute();
+    public async Task StartStreamingAsync() => await _streamingProcess.Execute().ConfigureAwait(false);
 
     public async Task DisposeAsync() => this.Dispose();
 
