@@ -2,17 +2,30 @@ using Discord.Social.CSharp.Sdk.Authorization;
 using Discord.Social.CSharp.Sdk.Extensions;
 using OpenCampfire.Authorization;
 using Discord.Social.CSharp.Sdk;
+using OpenCampfire.Abstractions;
+using OpenCampfire.Exceptions;
+using OpenCampfire.Options;
+
+namespace OpenCampfire.Processes;
 
 public sealed class AuthorizeProcess(DiscordClient discordClient, DiscordOptions discordOptions, IAuthorizationTokenStore tokenStore)
 {
     public void Execute()
     {
+        Console.WriteLine("Authorization process started...");
+
         var cachedToken = tokenStore.Load();
 
         // When the token is still valid, we can immediately apply it and complete the authorization process.
         if (cachedToken?.IsValid(DateTimeOffset.UtcNow, TimeSpan.FromMinutes(5)) == true)
         {
-            ApplyToken(cachedToken, () => {}, TryRefreshOrReAuthorizeOAuth);
+            Console.WriteLine("OAuth Token found in localstore is still valid, trying to apply...");
+            ApplyToken(
+                cachedToken, 
+                onSuccess: () => Console.WriteLine("Token applied successfully! Authorized ✓"), 
+                onFailure: TryRefreshOrReAuthorizeOAuth
+            );
+
             return;
         }
 
@@ -25,6 +38,7 @@ public sealed class AuthorizeProcess(DiscordClient discordClient, DiscordOptions
     /// </summary>
     private void TryRefreshOrReAuthorizeOAuth()
     {
+        Console.WriteLine("OAuth Token found in localstore was no longer valid, refreshing access with refresh token...");
         var cachedToken = tokenStore.Load()!;
 
         void RefreshTokenCallBack(ClientResult result, string accessToken, string refreshToken, AuthorizationTokenType tokenType, int expiresIn, string scope)
@@ -33,6 +47,8 @@ public sealed class AuthorizeProcess(DiscordClient discordClient, DiscordOptions
             {
                 if (result.Successful && !string.IsNullOrWhiteSpace(accessToken))
                 {
+                    Console.WriteLine("Successfully refreshed access token with refresh token...");
+
                     SaveAndApplyToken(
                         AuthorizationToken.FromExchange(
                             accessToken,
@@ -63,9 +79,15 @@ public sealed class AuthorizeProcess(DiscordClient discordClient, DiscordOptions
     /// <param name="token"></param>
     private void SaveAndApplyToken(AuthorizationToken token)
     {
-        void OnSuccess() => tokenStore.Save(token);
+        void OnSuccess() 
+        {
+            Console.WriteLine("Saving token in localstore...");
+            tokenStore.Save(token);
+        }
+
         void OnFailure() 
         {
+            Console.WriteLine("Clearing localstore and falling back to new OAuth authorization on Discord account...");
             tokenStore.Clear();
             AuthorizeUsingOAuth();
         }
@@ -86,12 +108,14 @@ public sealed class AuthorizeProcess(DiscordClient discordClient, DiscordOptions
             using (result)
             {
                 if (result.Successful)
-                {
+                {   
+                    Console.WriteLine("Successfully updated token! ✓");
                     onSuccess();
                     return;
                 }
             }
 
+            Console.WriteLine("Failed to apply token...");
             onFailure();
         }
 
@@ -106,6 +130,8 @@ public sealed class AuthorizeProcess(DiscordClient discordClient, DiscordOptions
                 if (!result.Successful || string.IsNullOrWhiteSpace(accessToken))
                     throw new OAuthFailedException();
 
+            Console.WriteLine("Successfully authorized OpenCampfire on Discord account ✓");
+
             SaveAndApplyToken(
                 AuthorizationToken.FromExchange(
                     accessToken,
@@ -116,6 +142,7 @@ public sealed class AuthorizeProcess(DiscordClient discordClient, DiscordOptions
                 )
             );
         }
+        Console.WriteLine("Attempting new OAuth authorization on Discord account...");
 
         var codeVerifier    = discordClient.CreateAuthorizationCodeVerifier();
         var authArgs        = new AuthorizationArgs();

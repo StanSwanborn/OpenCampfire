@@ -1,4 +1,6 @@
-namespace OpenCampfire.Authorization;
+using OpenCampfire.Authorization;
+
+namespace OpenCampfire.Abstractions;
 
 public interface IAuthorizationTokenStore
 {

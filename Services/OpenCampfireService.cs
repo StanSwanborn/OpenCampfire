@@ -1,7 +1,11 @@
 using Discord.Social.CSharp.Sdk.Logging;
 using Microsoft.Extensions.Options;
-using OpenCampfire.Authorization;
+using OpenCampfire.Abstractions;
 using Discord.Social.CSharp.Sdk;
+using OpenCampfire.Processes;
+using OpenCampfire.Options;
+
+namespace OpenCampfire.Services;
 
 public sealed class OpenCampfireService : IOpenCampfireService
 {
@@ -36,6 +40,8 @@ public sealed class OpenCampfireService : IOpenCampfireService
     public async Task RunCallbacksAsync() => _discordClient.RunCallBacks();
 
     public async Task StartStreamingAsync() => _streamingProcess.Execute();
+
+    public async Task DisposeAsync() => this.Dispose();
 
     public void Dispose()
     {

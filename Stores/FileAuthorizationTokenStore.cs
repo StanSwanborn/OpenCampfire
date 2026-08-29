@@ -1,6 +1,10 @@
 using Microsoft.Extensions.Options;
 using OpenCampfire.Authorization;
+using OpenCampfire.Abstractions;
+using OpenCampfire.Options;
 using System.Text.Json;
+
+namespace OpenCampfire.Stores;
 
 public sealed class FileAuthorizationTokenStore : IAuthorizationTokenStore
 {
