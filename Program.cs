@@ -1,29 +1,32 @@
 using Microsoft.Extensions.DependencyInjection;
+using OpenCampfire.Abstractions.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Discord.Social.CSharp.Sdk;
+using OpenCampfire.Services;
 using OpenCampfire.Options;
 using OpenCampfire.Stores;
-using OpenCampfire.Abstractions;
-using OpenCampfire.Services;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.AddJsonFile(
-    "Configuration/discord-configuration.json",
+    "Configuration/opencampfire-configuration.json",
     optional: false,
     reloadOnChange: false);
 
-builder.Services.AddOptions<DiscordOptions>()
-    .Bind(builder.Configuration)
-    .Validate(options => options.ApplicationId != 0, "Discord ApplicationId must be configured.")
-    .ValidateOnStart();
+builder.Services
+    .AddOptions<DiscordOptions>()
+    .Bind(builder.Configuration.GetSection("Discord"));
+
+builder.Services
+    .AddOptions<NATOptions>()
+    .Bind(builder.Configuration.GetSection("NAT"));
 
 builder.Services.AddSingleton<DiscordClient>();
 builder.Services.AddSingleton<IAuthorizationTokenStore, FileAuthorizationTokenStore>();
-builder.Services.AddSingleton<IOpenCampfireService, OpenCampfireService>();
+builder.Services.AddSingleton<IOpenCampfireDiscordService, OpenCampfireDiscordService>();
 
 using IHost host = builder.Build();
-IOpenCampfireService openCampfireService = host.Services.GetRequiredService<IOpenCampfireService>();
+IOpenCampfireDiscordService openCampfireService = host.Services.GetRequiredService<IOpenCampfireDiscordService>();
 
 // OpenCampfire Commands
 Dictionary<string, Func<Task>> commands = new()

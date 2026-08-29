@@ -1,6 +1,6 @@
 using OpenCampfire.Authorization;
 
-namespace OpenCampfire.Abstractions;
+namespace OpenCampfire.Abstractions.Interfaces;
 
 public interface IAuthorizationTokenStore
 {

@@ -1,0 +1,11 @@
+{
+    "Discord": {
+        "applicationId": "1541884081984241784"
+    },
+    "NAT": {
+        "NATServers": {
+            "Google": "stun.l.google.com:19302",
+            "Cloudflare": "stun.cloudflare.com:3478"
+        }
+    }
+}

@@ -1,4 +1,6 @@
-public interface IOpenCampfireService : IDisposable
+namespace OpenCampfire.Abstractions.Interfaces;
+
+public interface IOpenCampfireDiscordService : IDisposable
 {
     Task AuthorizeAsync();
     Task ConnectToDiscordAsync();

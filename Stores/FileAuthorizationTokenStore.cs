@@ -1,6 +1,6 @@
+using OpenCampfire.Abstractions.Interfaces;
 using Microsoft.Extensions.Options;
 using OpenCampfire.Authorization;
-using OpenCampfire.Abstractions;
 using OpenCampfire.Options;
 using System.Text.Json;
 

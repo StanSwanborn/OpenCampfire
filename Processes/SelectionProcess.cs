@@ -1,5 +1,5 @@
+using OpenCampfire.Abstractions.Interfaces;
 using Discord.Social.CSharp.Sdk;
-using OpenCampfire.Abstractions;
 using OpenCampfire.Options;
 
 namespace OpenCampfire.Processes;

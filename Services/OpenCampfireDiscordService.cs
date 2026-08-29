@@ -1,28 +1,27 @@
+using OpenCampfire.Abstractions.Interfaces;
 using Discord.Social.CSharp.Sdk.Logging;
 using Microsoft.Extensions.Options;
-using OpenCampfire.Abstractions;
 using Discord.Social.CSharp.Sdk;
 using OpenCampfire.Processes;
 using OpenCampfire.Options;
 
 namespace OpenCampfire.Services;
 
-public sealed class OpenCampfireService : IOpenCampfireService
+public sealed class OpenCampfireDiscordService : IOpenCampfireDiscordService
 {
     private readonly DiscordClient _discordClient;
     private readonly AuthorizeProcess _authorizeProcess;
     private readonly StreamingProcess _streamingProcess;
     private bool _disposed;
 
-    public OpenCampfireService(IOptions<DiscordOptions> discordOptions, DiscordClient discordClient, IAuthorizationTokenStore tokenStore)
+    public OpenCampfireDiscordService(IOptions<DiscordOptions> discordOptions, IOptions<NATOptions> natOptions, DiscordClient discordClient, IAuthorizationTokenStore tokenStore)
     {
         _discordClient  = discordClient;
-        var options     = discordOptions.Value;
 
-        _authorizeProcess = new AuthorizeProcess(discordClient, options, tokenStore);
-        _streamingProcess = new StreamingProcess(discordClient);
+        _authorizeProcess = new AuthorizeProcess(discordClient, discordOptions.Value, tokenStore);
+        _streamingProcess = new StreamingProcess(discordClient, natOptions.Value);
 
-        _discordClient.SetApplicationId(options.ApplicationId);
+        _discordClient.SetApplicationId(discordOptions.Value.ApplicationId);
 
         _discordClient.AddLogCallback((message, severity) =>
             Console.WriteLine($"[{severity}] {message}"), LoggingSeverity.Info

@@ -1,8 +1,8 @@
 using Discord.Social.CSharp.Sdk.Authorization;
 using Discord.Social.CSharp.Sdk.Extensions;
+using OpenCampfire.Abstractions.Interfaces;
 using OpenCampfire.Authorization;
 using Discord.Social.CSharp.Sdk;
-using OpenCampfire.Abstractions;
 using OpenCampfire.Exceptions;
 using OpenCampfire.Options;
 
