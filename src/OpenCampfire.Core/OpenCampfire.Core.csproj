@@ -22,4 +22,8 @@
   <EmbeddedResource Include="Configuration\opencampfire-configuration.json" />
 </ItemGroup>
 
+<ItemGroup>
+  <InternalsVisibleTo Include="OpenCampfire.Core.Tests" />
+</ItemGroup>
+
 </Project>
