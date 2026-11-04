@@ -1,10 +1,19 @@
 using OpenCampfire.Localhost;
+using OpenCampfire.Core.Extensions;
+using OpenCampfire.Options;
 using System.Net.Sockets;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddOpenCampfireConfiguration();
+
+LocalhostOptions localhostOptions = builder.Configuration
+    .GetSection("Localhost")
+    .Get<LocalhostOptions>()
+    ?? throw new InvalidOperationException("OpenCampfire Localhost configuration is missing.");
 
 builder.WebHost.UseUrls(
-    "http://opencampfire.localhost:80");
+    $"http://opencampfire.localhost:{localhostOptions.Port}"
+);
 
 WebApplication app = builder.Build();
 
@@ -16,30 +25,16 @@ app.MapWebApi();
 try
 {
     await app.StartAsync();
-
     await app.WaitForShutdownAsync();
 }
 catch (IOException ex) when (IsPermissionDenied(ex))
 {
-    Console.Error.WriteLine();
-    Console.Error.WriteLine("============================================================");
-    Console.Error.WriteLine(" OpenCampfire could not bind to port 80.");
-    Console.Error.WriteLine("============================================================");
-    Console.Error.WriteLine();
-    Console.Error.WriteLine("On Linux, binding to port 80 requires additional permission.");
-    Console.Error.WriteLine();
-    Console.Error.WriteLine("Please run the following command once:");
-    Console.Error.WriteLine();
-    Console.Error.WriteLine("    ./scripts/setup-port80-linux.sh");
-    Console.Error.WriteLine();
-    Console.Error.WriteLine("You will be asked for your administrator password.");
-    Console.Error.WriteLine("Afterwards, you can start OpenCampfire normally without sudo.");
-    Console.Error.WriteLine();
-    Console.Error.WriteLine("============================================================");
-    Console.Error.WriteLine();
+    Console.WriteLine($"Permission to bind to the requested application port of {localhostOptions.Port} was denied by the Operating System.");
+    Console.WriteLine("Please ensure that other applications that have claimed this port are closed.");
 
+    Console.WriteLine("=== CRITICAL FAILURE /portbinding ===");
     Environment.Exit(1);
-}
+}    
 
 static bool IsPermissionDenied(Exception exception)
 {

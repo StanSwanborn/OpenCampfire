@@ -38,8 +38,11 @@ public sealed class AuthorizeProcess(DiscordClient discordClient, DiscordOptions
     /// </summary>
     private void TryRefreshOrReAuthorizeOAuth()
     {
-        Console.WriteLine("OAuth Token found in localstore was no longer valid, refreshing access with refresh token...");
-        var cachedToken = tokenStore.Load()!;
+        void ReauthorizeOAuth()
+        {
+            tokenStore.Clear();
+            AuthorizeUsingOAuth();
+        }
 
         void RefreshTokenCallBack(ClientResult result, string accessToken, string refreshToken, AuthorizationTokenType tokenType, int expiresIn, string scope)
         {
@@ -55,8 +58,7 @@ public sealed class AuthorizeProcess(DiscordClient discordClient, DiscordOptions
                             refreshToken,
                             tokenType,
                             expiresIn,
-                            scope,
-                            cachedToken
+                            scope
                         )
                     );
 
@@ -65,11 +67,20 @@ public sealed class AuthorizeProcess(DiscordClient discordClient, DiscordOptions
             }
 
             // RefreshToken failed, clear the token store and start the authorization process again.
-            tokenStore.Clear();
-            AuthorizeUsingOAuth();
+            ReauthorizeOAuth();
         }
 
-        discordClient.RefreshToken(discordOptions.ApplicationId, cachedToken.RefreshToken, RefreshTokenCallBack);
+        Console.WriteLine("OAuth Token found in localstore was no longer valid, refreshing access with refresh token...");
+        var cachedToken = tokenStore.Load()!;
+
+        if(cachedToken == null)
+        {            
+            ReauthorizeOAuth(); // We can immediately reauth, considering the cachedToken is NULL.
+        }
+        else
+        {
+            discordClient.RefreshToken(discordOptions.ApplicationId, cachedToken!.RefreshToken, RefreshTokenCallBack);
+        }
     }
 
     /// <summary>

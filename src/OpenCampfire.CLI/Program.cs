@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using OpenCampfire.Abstractions.Interfaces;
 using Microsoft.Extensions.Configuration;
+using OpenCampfire.Core.Extensions;
 using Microsoft.Extensions.Hosting;
 using Discord.Social.CSharp.Sdk;
 using OpenCampfire.Services;
 using OpenCampfire.Options;
 using OpenCampfire.Stores;
-using OpenCampfire.Core.Extensions;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.AddOpenCampfireConfiguration();
@@ -18,6 +18,10 @@ builder.Services
 builder.Services
     .AddOptions<NATOptions>()
     .Bind(builder.Configuration.GetSection("NAT"));
+
+builder.Services
+    .AddOptions<LocalhostOptions>()
+    .Bind(builder.Configuration.GetSection("Localhost"));
 
 builder.Services.AddSingleton<DiscordClient>();
 builder.Services.AddSingleton<IAuthorizationTokenStore, FileAuthorizationTokenStore>();

@@ -6,7 +6,10 @@ using OpenCampfire.Helpers;
 
 namespace OpenCampfire.Processes;
 
-public sealed class StreamingProcess(DiscordClient discordClient, NATOptions natOptions)
+public sealed class StreamingProcess(
+    DiscordClient discordClient,
+    NATOptions natOptions,
+    LocalhostOptions localhostOptions)
 {
     private readonly NATAdapter natAdapter = new(natOptions);
 
@@ -24,7 +27,7 @@ public sealed class StreamingProcess(DiscordClient discordClient, NATOptions nat
 
         var button = new ActivityButton();
         button.SetLabel("Start Watching");
-        button.SetURL($"http://opencampfire.localhost/stream/watch?ticket={ticket}");
+        button.SetURL($"http://opencampfire.localhost:{localhostOptions.Port}/stream/watch?ticket={ticket}");
 
         activity.AddButton(button);
 

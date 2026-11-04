@@ -14,12 +14,17 @@ public sealed class OpenCampfireDiscordService : IOpenCampfireDiscordService
     private readonly StreamingProcess _streamingProcess;
     private bool _disposed;
 
-    public OpenCampfireDiscordService(IOptions<DiscordOptions> discordOptions, IOptions<NATOptions> natOptions, DiscordClient discordClient, IAuthorizationTokenStore tokenStore)
+    public OpenCampfireDiscordService(
+        IOptions<DiscordOptions> discordOptions,
+        IOptions<NATOptions> natOptions,
+        IOptions<LocalhostOptions> localhostOptions,
+        DiscordClient discordClient,
+        IAuthorizationTokenStore tokenStore)
     {
         _discordClient  = discordClient;
 
         _authorizeProcess = new AuthorizeProcess(discordClient, discordOptions.Value, tokenStore);
-        _streamingProcess = new StreamingProcess(discordClient, natOptions.Value);
+        _streamingProcess = new StreamingProcess(discordClient, natOptions.Value, localhostOptions.Value);
 
         _discordClient.SetApplicationId(discordOptions.Value.ApplicationId);
 
@@ -32,15 +37,20 @@ public sealed class OpenCampfireDiscordService : IOpenCampfireDiscordService
         );
     }
 
-    public async Task AuthorizeAsync() => await _authorizeProcess.Execute().ConfigureAwait(false);
+    public async Task AuthorizeAsync() => 
+        await _authorizeProcess.Execute().ConfigureAwait(false);
 
-    public async Task ConnectToDiscordAsync() => _discordClient.Connect();
+    public async Task ConnectToDiscordAsync() => 
+        _discordClient.Connect();
 
-    public async Task RunCallbacksAsync() => _discordClient.RunCallBacks();
+    public async Task RunCallbacksAsync() => 
+        _discordClient.RunCallBacks();
 
-    public async Task StartStreamingAsync() => await _streamingProcess.Execute().ConfigureAwait(false);
+    public async Task StartStreamingAsync() => 
+        await _streamingProcess.Execute().ConfigureAwait(false);
 
-    public async Task DisposeAsync() => this.Dispose();
+    public async Task DisposeAsync() => 
+        this.Dispose();
 
     public void Dispose()
     {
@@ -48,7 +58,6 @@ public sealed class OpenCampfireDiscordService : IOpenCampfireDiscordService
             return;
 
         _discordClient.Dispose();
-
         _disposed = true;
     }
 }

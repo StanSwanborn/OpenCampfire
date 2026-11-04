@@ -46,7 +46,9 @@ public sealed class FileAuthorizationTokenStore : IAuthorizationTokenStore
     public void Save(AuthorizationToken token)
     {
         var directory = Path.GetDirectoryName(_filePath)!;
-        Directory.CreateDirectory(directory);
+
+        if (!string.IsNullOrEmpty(directory))
+            Directory.CreateDirectory(directory);
 
         var temporaryPath = $"{_filePath}.{Guid.NewGuid():N}.tmp";
         File.WriteAllText(temporaryPath, JsonSerializer.Serialize(token));
@@ -57,13 +59,10 @@ public sealed class FileAuthorizationTokenStore : IAuthorizationTokenStore
 
     public void Clear()
     {
-        try
-        {
+        if (File.Exists(_filePath))
             File.Delete(_filePath);
-        }
-        catch (FileNotFoundException) // If the file doesn't exist, we can consider it already cleared.
-        {
-        }
+            
+        this.deserializedToken = null;
     }
 
     private static void RestrictToCurrentUser(string path)

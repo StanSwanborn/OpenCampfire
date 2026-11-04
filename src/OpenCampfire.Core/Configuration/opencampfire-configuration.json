@@ -1,4 +1,7 @@
 {
+    "Localhost": {
+        "Port": 46150
+    },
     "Discord": {
         "applicationId": "1541884081984241784"
     },
